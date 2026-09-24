@@ -1,0 +1,3068 @@
+{
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "active": false,
+  "pinData": {},
+  "tags": [],
+  "name": "Trakt - Films et séries",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://YOUR_N8N_HOST.example.invalid/",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -5328,
+        2112
+      ],
+      "id": "58ccca39-4fe4-58b9-876d-c1b6a64f0b4c",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4a1cf3d8-1821-5694-aec3-54e02e71b37f",
+              "name": "jour_de_la_semaine",
+              "value": "={{ $json.jour_de_la_semaine }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5776,
+        2192
+      ],
+      "id": "06fa4ea3-cc0c-5616-bf29-3a65a5779f95",
+      "name": "Configuration Globale"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dfe26474-e182-5972-9207-d7a85fa59c45",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5104,
+        2112
+      ],
+      "id": "29b6fc3b-090b-536f-ad8c-afe5f8f06de1",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "command": "=pkill ngrok; sleep 2; nohup ngrok http 5678 > /dev/null 2>&1 &"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -4880,
+        2224
+      ],
+      "id": "6c6dab31-6fb2-5846-ba49-5afa9c4b4c5a",
+      "name": "Restauration Tunnel1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -4688,
+        2368
+      ],
+      "id": "4bb71d25-030d-53ba-92ac-fa9a6c105e71",
+      "name": "Wait1",
+      "webhookId": "15b0031f-37b0-53b5-a601-04233ffd8820"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -5552,
+        2192
+      ],
+      "id": "31451b60-af36-579f-bfb3-b627674bd83d",
+      "name": "Loop Over Items4"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $now }}",
+        "format": "custom",
+        "customFormat": "E",
+        "outputFieldName": "jour_de_la_semaine",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -6000,
+        2192
+      ],
+      "id": "ea7e3e4d-8941-5ac0-90e7-3cf8167cd86b",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -6224,
+        2192
+      ],
+      "id": "7d16b424-8151-5c58-b7e4-578eb47c6277",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Série",
+            "En possession et Lu": "={{ $('Code in JavaScript12').first().json.episodes_minutes }}",
+            "En possession (Total)": "={{ $('Code in JavaScript12').first().json.episodes_lectures_totales }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.episodes_totaux_a_voir }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -1760
+      ],
+      "id": "cd8fb86b-cbd7-5944-9467-f5fa4a34ca73",
+      "name": "Série"
+    },
+    {
+      "parameters": {
+        "url": "https://api.trakt.tv/users/YOUR_TRAKT_USERNAME/stats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "trakt-api-version",
+              "value": "2"
+            },
+            {
+              "name": "trakt-api-key",
+              "value": "YOUR_TRAKT_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7d10a29a-a92d-544d-9fc1-7a756ce68b45",
+      "name": "Trakt API - Get Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -928,
+        -2048
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Films",
+            "En possession (Total)": "={{ $('Code in JavaScript12').first().json.films_lectures_totales }}",
+            "En possession et Lu": "={{ $('Code in JavaScript12').first().json.films_minutes }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.films_a_voir }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -1568
+      ],
+      "id": "aa5758eb-69f8-593f-8068-31e64c229c5d",
+      "name": "Film"
+    },
+    {
+      "parameters": {
+        "url": "https://api.trakt.tv/users/YOUR_TRAKT_USERNAME/watchlist?extended=full",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "extended",
+              "value": "full"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "trakt-api-version",
+              "value": "2"
+            },
+            {
+              "name": "trakt-api-key",
+              "value": "YOUR_TRAKT_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "id": "8542d282-f46a-547b-8a7b-2d8b6c510f0c",
+      "name": "Trakt API - Get Stats1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -928,
+        -1856
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const stats = $input.first().json;\n\n// Calcul des durées en minutes\nconst movieMinutes = stats.movies?.minutes || 0;\nconst episodeMinutes = stats.episodes?.minutes || 0;\nconst totalMinutes = movieMinutes + episodeMinutes;\n\n// Conversions en heures et en jours\nconst movieHours = +(movieMinutes / 60).toFixed(1);\nconst episodeHours = +(episodeMinutes / 60).toFixed(1);\nconst totalHours = +(totalMinutes / 60).toFixed(1);\nconst totalDays = +(totalMinutes / 1440).toFixed(2);\n\n// Date de l'enregistrement (format YYYY-MM-DD HH:mm)\nconst dateEnregistrement = new Date().toISOString().replace('T', ' ').substring(0, 16);\n\nreturn [{\n  json: {\n    date: dateEnregistrement,\n    user: \"YOUR_USERNAME\",\n    films_vus: stats.movies?.watched || 0,\n    films_lectures_totales: stats.movies?.plays || 0,\n    films_minutes: movieMinutes,\n    films_heures: movieHours,\n    series_vues: stats.shows?.watched || 0,\n    episodes_vus: stats.episodes?.watched || 0,\n    episodes_lectures_totales: stats.episodes?.plays || 0,\n    episodes_minutes: episodeMinutes,\n    episodes_heures: episodeHours,\n    temps_total_minutes: totalMinutes,\n    temps_total_heures: totalHours,\n    temps_total_jours: totalDays,\n    notes_films: stats.movies?.ratings || 0,\n    notes_series: stats.shows?.ratings || 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        -2048
+      ],
+      "id": "1b9efbdb-80cb-56da-9ae3-da74605d0679",
+      "name": "Code in JavaScript12"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet countFilms = 0;\nlet countSeries = 0;\nlet countSaisons = 0;\nlet countEpisodes = 0;\nlet totalEpisodesWatchlist = 0;\n\n// 1. Initialisation des compteurs\nconst filmsParDecennie = {};\nconst episodesParDecennie = {};\nconst filmsParPaysWatchlist = {};\nconst seriesEpisodesParPaysWatchlist = {};\nconst filmsParGenreFusionne = {};\nconst seriesEpisodesParGenreFusionne = {};\n\n// Initialisation des décennies\nfor (let d = 1890; d <= 2090; d += 10) {\n  filmsParDecennie[`${d}s`] = 0;\n  episodesParDecennie[`${d}s`] = 0;\n}\n\n// Catégories pour les informations manquantes\nfilmsParDecennie[\"sans années\"] = 0;\nepisodesParDecennie[\"sans années\"] = 0;\n\nfilmsParPaysWatchlist[\"sans pays\"] = 0;\nseriesEpisodesParPaysWatchlist[\"sans pays\"] = 0;\n\n// 2. Fonctions utilitaires\n\n/**\n * Retourne la décennie correspondant à une année.\n * Accepte également une année fournie sous forme de chaîne.\n */\nfunction obtenirDecennie(year) {\n  if (\n    year === null ||\n    year === undefined ||\n    year === \"\"\n  ) {\n    return \"sans années\";\n  }\n\n  const annee = Number(year);\n\n  if (!Number.isFinite(annee) || annee <= 0) {\n    return \"sans années\";\n  }\n\n  return `${Math.floor(annee / 10) * 10}s`;\n}\n\n/**\n * Normalise le code pays.\n */\nfunction normaliserPays(country) {\n  if (typeof country !== \"string\") {\n    return \"sans pays\";\n  }\n\n  const code = country.trim().toLowerCase();\n\n  return code || \"sans pays\";\n}\n\n/**\n * Compte les films par décennie.\n */\nfunction compterFilmsDecennie(year) {\n  const decennieKey = obtenirDecennie(year);\n\n  filmsParDecennie[decennieKey] =\n    (filmsParDecennie[decennieKey] || 0) + 1;\n}\n\n/**\n * Compte les épisodes par décennie.\n */\nfunction compterEpisodesDecennie(year, nbEpisodes) {\n  if (nbEpisodes <= 0) return;\n\n  const decennieKey = obtenirDecennie(year);\n\n  episodesParDecennie[decennieKey] =\n    (episodesParDecennie[decennieKey] || 0) + nbEpisodes;\n}\n\n/**\n * Compte les films par pays.\n */\nfunction compterPaysFilms(country, dict) {\n  const code = normaliserPays(country);\n\n  dict[code] = (dict[code] || 0) + 1;\n}\n\n/**\n * Compte les épisodes de séries par pays.\n */\nfunction compterPaysSeries(country, nbEpisodes, dict) {\n  if (nbEpisodes <= 0) return;\n\n  const code = normaliserPays(country);\n\n  dict[code] = (dict[code] || 0) + nbEpisodes;\n}\n\n/**\n * Compte les genres et sous-genres des films.\n */\nfunction compterGenresFilms(movie, dict) {\n  if (!movie) return;\n\n  const tousLesGenres = [];\n\n  if (Array.isArray(movie.genres)) {\n    tousLesGenres.push(...movie.genres);\n  }\n\n  if (Array.isArray(movie.subgenres)) {\n    tousLesGenres.push(...movie.subgenres);\n  }\n\n  for (const tag of tousLesGenres) {\n    dict[tag] = (dict[tag] || 0) + 1;\n  }\n}\n\n/**\n * Compte les genres et sous-genres des séries,\n * pondérés par le nombre d’épisodes.\n */\nfunction compterGenresSeries(show, nbEpisodes, dict) {\n  if (!show || nbEpisodes <= 0) return;\n\n  const tousLesGenres = [];\n\n  if (Array.isArray(show.genres)) {\n    tousLesGenres.push(...show.genres);\n  }\n\n  if (Array.isArray(show.subgenres)) {\n    tousLesGenres.push(...show.subgenres);\n  }\n\n  for (const tag of tousLesGenres) {\n    dict[tag] = (dict[tag] || 0) + nbEpisodes;\n  }\n}\n\n// 3. Traitement des éléments\nfor (const entry of items) {\n  const data = entry.json;\n  const type = data.type?.toLowerCase();\n\n  switch (type) {\n    case \"movie\": {\n      countFilms++;\n\n      compterFilmsDecennie(data.movie?.year);\n\n      compterPaysFilms(\n        data.movie?.country,\n        filmsParPaysWatchlist\n      );\n\n      compterGenresFilms(\n        data.movie,\n        filmsParGenreFusionne\n      );\n\n      break;\n    }\n\n    case \"show\": {\n      countSeries++;\n\n      const showEps = data.show?.aired_episodes || 0;\n\n      totalEpisodesWatchlist += showEps;\n\n      compterEpisodesDecennie(\n        data.show?.year,\n        showEps\n      );\n\n      compterPaysSeries(\n        data.show?.country,\n        showEps,\n        seriesEpisodesParPaysWatchlist\n      );\n\n      compterGenresSeries(\n        data.show,\n        showEps,\n        seriesEpisodesParGenreFusionne\n      );\n\n      break;\n    }\n\n    case \"season\": {\n      countSaisons++;\n\n      const seasonEps = data.season?.episode_count || 0;\n\n      totalEpisodesWatchlist += seasonEps;\n\n      compterEpisodesDecennie(\n        data.show?.year,\n        seasonEps\n      );\n\n      compterPaysSeries(\n        data.show?.country,\n        seasonEps,\n        seriesEpisodesParPaysWatchlist\n      );\n\n      compterGenresSeries(\n        data.show,\n        seasonEps,\n        seriesEpisodesParGenreFusionne\n      );\n\n      break;\n    }\n\n    case \"episode\": {\n      countEpisodes++;\n      totalEpisodesWatchlist += 1;\n\n      compterEpisodesDecennie(\n        data.show?.year,\n        1\n      );\n\n      compterPaysSeries(\n        data.show?.country,\n        1,\n        seriesEpisodesParPaysWatchlist\n      );\n\n      compterGenresSeries(\n        data.show,\n        1,\n        seriesEpisodesParGenreFusionne\n      );\n\n      break;\n    }\n\n    default: {\n      if (data.movie) {\n        countFilms++;\n\n        compterFilmsDecennie(\n          data.movie?.year\n        );\n\n        compterPaysFilms(\n          data.movie?.country,\n          filmsParPaysWatchlist\n        );\n\n        compterGenresFilms(\n          data.movie,\n          filmsParGenreFusionne\n        );\n      } else if (data.episode) {\n        countEpisodes++;\n        totalEpisodesWatchlist += 1;\n\n        compterEpisodesDecennie(\n          data.show?.year,\n          1\n        );\n\n        compterPaysSeries(\n          data.show?.country,\n          1,\n          seriesEpisodesParPaysWatchlist\n        );\n\n        compterGenresSeries(\n          data.show,\n          1,\n          seriesEpisodesParGenreFusionne\n        );\n      } else if (data.show) {\n        countSeries++;\n\n        const defaultShowEps =\n          data.show?.aired_episodes || 0;\n\n        totalEpisodesWatchlist += defaultShowEps;\n\n        compterEpisodesDecennie(\n          data.show?.year,\n          defaultShowEps\n        );\n\n        compterPaysSeries(\n          data.show?.country,\n          defaultShowEps,\n          seriesEpisodesParPaysWatchlist\n        );\n\n        compterGenresSeries(\n          data.show,\n          defaultShowEps,\n          seriesEpisodesParGenreFusionne\n        );\n      }\n\n      break;\n    }\n  }\n}\n\n// 4. Date d’enregistrement\nconst dateEnregistrement = new Date()\n  .toISOString()\n  .replace(\"T\", \" \")\n  .substring(0, 16);\n\n// 5. Résultat\nreturn [\n  {\n    json: {\n      date: dateEnregistrement,\n      user: \"YOUR_USERNAME\",\n\n      films_a_voir: countFilms,\n      series_a_voir: countSeries,\n      saisons_a_voir: countSaisons,\n      episodes_a_voir: countEpisodes,\n      episodes_totaux_a_voir: totalEpisodesWatchlist,\n      total_watchlist: items.length,\n\n      films_par_decennie: filmsParDecennie,\n      episodes_par_decennie: episodesParDecennie,\n\n      films_par_pays_watchlist:\n        filmsParPaysWatchlist,\n\n      series_episodes_par_pays_watchlist:\n        seriesEpisodesParPaysWatchlist,\n\n      films_genres_watchlist:\n        filmsParGenreFusionne,\n\n      series_episodes_genres_watchlist:\n        seriesEpisodesParGenreFusionne\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        -1856
+      ],
+      "id": "d095f766-b90a-55fd-9266-0bd991de1197",
+      "name": "Code in JavaScript13"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -480,
+        -1984
+      ],
+      "id": "ef75ae70-19e5-589c-979c-59d9fef7baec",
+      "name": "Merge7"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -1328
+      ],
+      "id": "64ccf8e1-c89e-54be-8cad-94e11965c620",
+      "name": "Aggregate3"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=Ta bibliothèque-visuel est à jour.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        -1376
+      ],
+      "id": "cf6ec27b-b081-58b0-a245-966854604c37",
+      "name": "Send a text message2",
+      "webhookId": "aa923d99-a534-5a99-8294-0d67b06a3394"
+    },
+    {
+      "parameters": {
+        "numberInputs": 8
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        192,
+        -1472
+      ],
+      "id": "07b41436-0f9c-5bad-9d7c-4d4fea61c947",
+      "name": "Merge8"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -1376
+      ],
+      "id": "56f21783-2d98-54db-949b-4ee955347891",
+      "name": "Aggregate4"
+    },
+    {
+      "parameters": {
+        "url": "https://api.trakt.tv/users/YOUR_TRAKT_USERNAME/history/movies?extended=full",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "full",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "trakt-api-version",
+              "value": "2"
+            },
+            {
+              "name": "trakt-api-key",
+              "value": "YOUR_TRAKT_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "id": "a9f21098-aad8-5549-b8e9-1a9a9b4835c2",
+      "name": "Trakt API - Get Stats2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -928,
+        -1664
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet longestMovie = null;\nlet shortestMovie = null;\nlet oldestMovie = null;\n\nlet maxRuntime = -Infinity;\nlet minRuntime = Infinity;\nlet minYear = Infinity;\n\nlet totalRuntime = 0;\nlet validMoviesCount = 0;\n\nlet moviesWithoutYear = 0;\nlet moviesWithoutCountry = 0;\n\nconst filmsParDecennieBrut = {};\nconst filmsParGenreFusionne = {};\nconst filmsParPays = {};\n\nfunction formatMovieString(movie, runtime) {\n  if (!movie) return \"\";\n\n  const hours = Math.floor(runtime / 60);\n  const minutes = runtime % 60;\n\n  if (hours > 0) {\n    return `${movie.title} (${hours} h ${minutes} min)`;\n  }\n\n  return `${movie.title} (${minutes} min)`;\n}\n\nfor (const item of items) {\n  const data = item.json;\n\n  // Supports { movie: {...} } and direct movie objects.\n  const movie = data.movie || data;\n\n  if (!movie || !movie.title) continue;\n\n  const runtime = movie.runtime;\n  const year = movie.year;\n  const country = movie.country;\n\n  // 1. Movies by country\n  if (typeof country === \"string\" && country.trim() !== \"\") {\n    const countryCode = country.trim().toLowerCase();\n\n    filmsParPays[countryCode] =\n      (filmsParPays[countryCode] || 0) + 1;\n  } else {\n    moviesWithoutCountry++;\n  }\n\n  // 2. Genres and subgenres\n  const allGenres = [];\n\n  if (Array.isArray(movie.genres)) {\n    allGenres.push(...movie.genres);\n  }\n\n  if (Array.isArray(movie.subgenres)) {\n    allGenres.push(...movie.subgenres);\n  }\n\n  for (const tag of allGenres) {\n    filmsParGenreFusionne[tag] =\n      (filmsParGenreFusionne[tag] || 0) + 1;\n  }\n\n  // 3. Runtime calculations\n  if (typeof runtime === \"number\" && runtime > 0) {\n    validMoviesCount++;\n    totalRuntime += runtime;\n\n    if (runtime > maxRuntime) {\n      maxRuntime = runtime;\n      longestMovie = movie;\n    }\n\n    if (runtime < minRuntime) {\n      minRuntime = runtime;\n      shortestMovie = movie;\n    }\n  }\n\n  // 4. Year and decade calculations\n  const normalizedYear =\n    year !== null &&\n    year !== undefined &&\n    year !== \"\"\n      ? Number(year)\n      : NaN;\n\n  if (\n    Number.isFinite(normalizedYear) &&\n    normalizedYear > 0\n  ) {\n    if (normalizedYear < minYear) {\n      minYear = normalizedYear;\n      oldestMovie = movie;\n    }\n\n    const decade = Math.floor(normalizedYear / 10) * 10;\n    const decadeKey = `${decade}s`;\n\n    filmsParDecennieBrut[decadeKey] =\n      (filmsParDecennieBrut[decadeKey] || 0) + 1;\n  } else {\n    moviesWithoutYear++;\n  }\n}\n\nif (validMoviesCount === 0 && !oldestMovie) {\n  return [\n    {\n      json: {\n        message: \"Aucun film valide trouvé\"\n      }\n    }\n  ];\n}\n\n// Fill decades chronologically.\nconst filmsParDecennie = {};\n\nconst foundYears = Object.keys(filmsParDecennieBrut)\n  .map(key => parseInt(key, 10))\n  .filter(Number.isFinite);\n\nconst minDecade =\n  foundYears.length > 0\n    ? Math.min(...foundYears)\n    : 1890;\n\nconst maxDecade = 2090;\n\nfor (\n  let decade = minDecade;\n  decade <= maxDecade;\n  decade += 10\n) {\n  const decadeKey = `${decade}s`;\n\n  filmsParDecennie[decadeKey] =\n    filmsParDecennieBrut[decadeKey] || 0;\n}\n\n// Add missing-information categories at the end.\nfilmsParDecennie[\"sans années\"] = moviesWithoutYear;\nfilmsParPays[\"sans pays\"] = moviesWithoutCountry;\n\n// Average runtime\nconst averageRuntimeMinutes =\n  validMoviesCount > 0\n    ? Math.round(totalRuntime / validMoviesCount)\n    : 0;\n\nconst averageHours = Math.floor(\n  averageRuntimeMinutes / 60\n);\n\nconst averageMinutes =\n  averageRuntimeMinutes % 60;\n\nconst formattedAverage =\n  averageHours > 0\n    ? `${averageHours} h ${averageMinutes} min`\n    : `${averageMinutes} min`;\n\nreturn [\n  {\n    json: {\n      user: \"YOUR_USERNAME\",\n\n      film_plus_long: formatMovieString(\n        longestMovie,\n        maxRuntime\n      ),\n\n      film_plus_court: formatMovieString(\n        shortestMovie,\n        minRuntime\n      ),\n\n      film_plus_vieux: oldestMovie\n        ? `${oldestMovie.title} (${oldestMovie.year})`\n        : null,\n\n      moyenne_films: formattedAverage,\n      moyenne_minutes: averageRuntimeMinutes,\n      total_films_analyses: validMoviesCount,\n\n      films_par_decennie: filmsParDecennie,\n      films_par_pays: filmsParPays,\n      genres_et_sous_genres: filmsParGenreFusionne\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        -1664
+      ],
+      "id": "de3cdad5-ec08-584d-a6c0-a759036c0a8c",
+      "name": "Code in JavaScript14"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Stat": "Série",
+            "Max": "={{ $('Code in JavaScript15').first().json.plus_long.affichage_complet }}",
+            "Min": "={{ $('Code in JavaScript15').first().json.plus_court.affichage_complet }}",
+            "Moyenne Page": "={{ $('Code in JavaScript15').first().json.moyenne.duree_minutes }}"
+          },
+          "matchingColumns": [
+            "Stat"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -1376
+      ],
+      "id": "f66e8dde-9234-572b-87a7-d74cf3c69810",
+      "name": "Série Max"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Stat": "Films",
+            "Max": "={{ $('Code in JavaScript14').first().json.film_plus_long }}",
+            "Min": "={{ $('Code in JavaScript14').first().json.film_plus_court }}",
+            "Moyenne Page": "={{ $('Code in JavaScript14').first().json.moyenne_minutes }}",
+            "Max p": "={{ $('Code in JavaScript14').first().json.film_plus_vieux }}"
+          },
+          "matchingColumns": [
+            "Stat"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -1184
+      ],
+      "id": "b73ecd5f-3759-51bf-aa85-1f33952c895d",
+      "name": "Film Max"
+    },
+    {
+      "parameters": {
+        "url": "https://api.trakt.tv/users/YOUR_TRAKT_USERNAME/history/episodes?extended=full",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "trakt-api-version",
+              "value": "2"
+            },
+            {
+              "name": "trakt-api-key",
+              "value": "YOUR_TRAKT_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "id": "72cdce67-a301-52a3-939c-a88d3a361463",
+      "name": "Trakt API - Get Stats3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -928,
+        -1472
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet longestEpisode = null;\nlet maxRuntime = 0;\n\nlet shortestEpisode = null;\nlet minRuntime = Infinity;\n\nlet totalRuntime = 0;\nlet validEpisodesCount = 0;\n\nlet episodesWithoutYear = 0;\nlet episodesWithoutCountry = 0;\n\n// 1. Initialize decade counters.\nconst episodesParDecennie = {};\n\nfor (let decade = 1890; decade <= 2090; decade += 10) {\n  episodesParDecennie[`${decade}s`] = 0;\n}\n\nconst episodesParGenreFusionne = {};\nconst episodesParPays = {};\n\nfor (const item of items) {\n  const data = item.json;\n  const episode = data.episode;\n  const show = data.show;\n\n  // 2. Episodes by series country\n  const country = show?.country;\n\n  if (typeof country === \"string\" && country.trim() !== \"\") {\n    const countryCode = country.trim().toLowerCase();\n\n    episodesParPays[countryCode] =\n      (episodesParPays[countryCode] || 0) + 1;\n  } else {\n    episodesWithoutCountry++;\n  }\n\n  // 3. Episodes by series decade\n  const year = show?.year;\n\n  const normalizedYear =\n    year !== null &&\n    year !== undefined &&\n    year !== \"\"\n      ? Number(year)\n      : NaN;\n\n  if (\n    Number.isFinite(normalizedYear) &&\n    normalizedYear > 0\n  ) {\n    const decade =\n      Math.floor(normalizedYear / 10) * 10;\n\n    const decadeKey = `${decade}s`;\n\n    episodesParDecennie[decadeKey] =\n      (episodesParDecennie[decadeKey] || 0) + 1;\n  } else {\n    episodesWithoutYear++;\n  }\n\n  // 4. Genres and subgenres\n  const allGenres = [];\n\n  if (Array.isArray(show?.genres)) {\n    allGenres.push(...show.genres);\n  }\n\n  if (Array.isArray(show?.subgenres)) {\n    allGenres.push(...show.subgenres);\n  }\n\n  for (const tag of allGenres) {\n    episodesParGenreFusionne[tag] =\n      (episodesParGenreFusionne[tag] || 0) + 1;\n  }\n\n  const runtime = Number(episode?.runtime) || 0;\n\n  // 5. Runtime calculations\n  if (runtime > 0) {\n    totalRuntime += runtime;\n    validEpisodesCount++;\n\n    const episodeData = {\n      serie: show?.title || \"Série inconnue\",\n      saison: episode?.season ?? 0,\n      numero: episode?.number ?? 0,\n      titre: episode?.title || \"Sans titre\",\n      runtime\n    };\n\n    if (runtime > maxRuntime) {\n      maxRuntime = runtime;\n      longestEpisode = episodeData;\n    }\n\n    if (runtime < minRuntime) {\n      minRuntime = runtime;\n      shortestEpisode = episodeData;\n    }\n  }\n}\n\n// Add missing-information categories at the end.\nepisodesParDecennie[\"sans années\"] =\n  episodesWithoutYear;\n\nepisodesParPays[\"sans pays\"] =\n  episodesWithoutCountry;\n\nif (\n  !longestEpisode ||\n  !shortestEpisode ||\n  validEpisodesCount === 0\n) {\n  return [\n    {\n      json: {\n        message:\n          \"Aucun épisode avec durée valide trouvé.\"\n      }\n    }\n  ];\n}\n\n// Average runtime rounded to the nearest minute.\nconst averageRuntime = Math.round(\n  totalRuntime / validEpisodesCount\n);\n\nfunction formatDuration(runtime) {\n  const hours = Math.floor(runtime / 60);\n  const minutes = runtime % 60;\n\n  return hours > 0\n    ? `${hours} h ${\n        minutes > 0 ? `${minutes} min` : \"\"\n      }`.trim()\n    : `${minutes} min`;\n}\n\nfunction formatEpisodeInfo(episodeData) {\n  const formattedDuration = formatDuration(\n    episodeData.runtime\n  );\n\n  const seasonString = String(\n    episodeData.saison\n  ).padStart(2, \"0\");\n\n  const episodeString = String(\n    episodeData.numero\n  ).padStart(2, \"0\");\n\n  const episodeCode =\n    `S${seasonString}E${episodeString}`;\n\n  return {\n    serie: episodeData.serie,\n    code_episode: episodeCode,\n    titre_episode: episodeData.titre,\n    duree_minutes: episodeData.runtime,\n    duree_formatee: formattedDuration,\n\n    affichage_complet:\n      `${episodeData.serie} ` +\n      `(${episodeCode} - ${episodeData.titre}) : ` +\n      formattedDuration\n  };\n}\n\nreturn [\n  {\n    json: {\n      user: \"YOUR_USERNAME\",\n\n      plus_long:\n        formatEpisodeInfo(longestEpisode),\n\n      plus_court:\n        formatEpisodeInfo(shortestEpisode),\n\n      moyenne: {\n        duree_minutes: averageRuntime,\n        duree_formatee:\n          formatDuration(averageRuntime),\n\n        base_de_calcul:\n          `${validEpisodesCount} épisodes pris en compte`\n      },\n\n      episodes_par_decennie:\n        episodesParDecennie,\n\n      episodes_par_pays:\n        episodesParPays,\n\n      genres_et_sous_genres:\n        episodesParGenreFusionne\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        -1472
+      ],
+      "id": "09d8082d-f83a-5ea1-9f0d-04c852a9db58",
+      "name": "Code in JavaScript15"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Décennie Série",
+            "En possession (Total)": "={{ $('Code in JavaScript15').first().json.episodes_par_decennie }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.episodes_par_decennie }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -16,
+        -960
+      ],
+      "id": "8d8ae6d4-54f1-56e1-a5b2-f02406ebe09d",
+      "name": "Série décénie"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Décennie Film",
+            "En possession (Total)": "={{ $('Code in JavaScript14').first().json.films_par_decennie }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.films_par_decennie }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -16,
+        -768
+      ],
+      "id": "30356766-4399-5605-9511-79284db9e97a",
+      "name": "Film décennie"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Genre Série",
+            "En possession (Total)": "={{ $('Code in JavaScript15').first().json.genres_et_sous_genres }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.series_episodes_genres_watchlist }}",
+            "Non possédé et Lu": "={{ $('Code in JavaScript13').first().json.series_episodes_par_pays_watchlist }}",
+            "En possession et Lu": "={{ $('Code in JavaScript15').first().json.episodes_par_pays }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -16,
+        -576
+      ],
+      "id": "a6f02d9f-31c1-5acd-a894-fb58fb721f89",
+      "name": "Genre Série"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "N8N",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Genre": "Genre Film",
+            "En possession (Total)": "={{ $('Code in JavaScript14').first().json.genres_et_sous_genres }}",
+            "Liste de souhait": "={{ $('Code in JavaScript13').first().json.films_genres_watchlist }}",
+            "En possession et Lu": "={{ $('Code in JavaScript14').first().json.films_par_pays }}",
+            "Non possédé et Lu": "={{ $('Code in JavaScript13').first().json.films_par_pays_watchlist }}"
+          },
+          "matchingColumns": [
+            "Genre"
+          ],
+          "schema": [
+            {
+              "id": "Genre",
+              "displayName": "Genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Liste de souhait",
+              "displayName": "Liste de souhait",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession (Total)",
+              "displayName": "En possession (Total)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "En possession et Lu",
+              "displayName": "En possession et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Non possédé et Lu",
+              "displayName": "Non possédé et Lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Dédicace",
+              "displayName": "Dédicace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Autre Stat",
+              "displayName": "Autre Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pages",
+              "displayName": "Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Poids",
+              "displayName": "Poids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Prix",
+              "displayName": "Prix",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stat",
+              "displayName": "Stat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max",
+              "displayName": "Max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min",
+              "displayName": "Min",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Max p",
+              "displayName": "Max p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Min p",
+              "displayName": "Min p",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Moyenne Page",
+              "displayName": "Moyenne Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -16,
+        -384
+      ],
+      "id": "5f502aaf-415b-5c5b-966d-a7604726a0b5",
+      "name": "Genre Film"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code in JavaScript16\n// Mode: Run Once for All Items.\n//\n// Before running, update the Film Data Table:\n// Keep: movie_uuid, movie_name, runtime_minutes.\n// Remove: watched_at, imdb_id, movie_raw_json, sync_run_at.\n// Add: Statut (String).\n// Insert row: Map Automatically.\n\nfunction readSource(nodeName) {\n  const entries = [];\n\n  function visit(value) {\n    if (value === null || value === undefined) return;\n\n    if (typeof value === 'string') {\n      if (value.trim()) visit(JSON.parse(value));\n      return;\n    }\n\n    if (Array.isArray(value)) {\n      for (const entry of value) visit(entry);\n      return;\n    }\n\n    if (typeof value !== 'object') {\n      throw new Error(`${nodeName}: invalid JSON response.`);\n    }\n\n    if (Object.keys(value).length === 0) return;\n\n    if (value.error || Number(value.statusCode) >= 400) {\n      throw new Error(`${nodeName}: API error.`);\n    }\n\n    if (value.movie || value.show) {\n      entries.push(value);\n      return;\n    }\n\n    for (const key of ['body', 'data', 'items', 'results']) {\n      if (Object.prototype.hasOwnProperty.call(value, key)) {\n        visit(value[key]);\n        return;\n      }\n    }\n\n    throw new Error(`${nodeName}: unrecognized response format.`);\n  }\n\n  for (const item of $(nodeName).all()) {\n    visit(item.json);\n  }\n\n  return entries;\n}\n\nfunction mediaKey(media, kind) {\n  const ids = media.ids || {};\n\n  for (const provider of ['trakt', 'imdb', 'tmdb', 'tvdb', 'slug']) {\n    const value = ids[provider];\n\n    if (\n      value !== null &&\n      value !== undefined &&\n      String(value).trim()\n    ) {\n      return `${provider}:${kind}:${String(value).trim()}`;\n    }\n  }\n\n  if (ids.plex?.guid) {\n    return `plex:${kind}:${ids.plex.guid}`;\n  }\n\n  throw new Error(\n    `Missing ${kind} identifier: ${media.title || 'unknown'}.`\n  );\n}\n\nfunction nonNegativeNumber(value) {\n  if (value === null || value === undefined || value === '') {\n    return null;\n  }\n\n  const number = Number(value);\n\n  return Number.isFinite(number) && number >= 0\n    ? number\n    : null;\n}\n\nconst movies = new Map();\n\nfunction addMovie(movie, watched) {\n  if (!movie || typeof movie !== 'object') {\n    throw new Error('Missing movie in a Trakt history entry.');\n  }\n\n  const key = mediaKey(movie, 'movie');\n  const updatedAt = Date.parse(movie.updated_at) || 0;\n  const runtime = nonNegativeNumber(movie.runtime);\n  const title = movie.title || movie.original_title || null;\n\n  if (!movies.has(key)) {\n    movies.set(key, {\n      key,\n      title,\n      runtime,\n      updatedAt,\n      watched: Boolean(watched),\n    });\n\n    return;\n  }\n\n  const current = movies.get(key);\n\n  // Watched takes priority when a movie appears in both sources.\n  current.watched = current.watched || watched;\n\n  if (updatedAt >= current.updatedAt) {\n    current.title = title || current.title;\n    current.runtime = runtime ?? current.runtime;\n    current.updatedAt = updatedAt;\n  } else {\n    current.title = current.title || title;\n    current.runtime = current.runtime ?? runtime;\n  }\n}\n\nfor (const entry of readSource('Trakt API - Get Stats1')) {\n  if (entry.movie) {\n    addMovie(entry.movie, false);\n  }\n}\n\nfor (const entry of readSource('Trakt API - Get Stats2')) {\n  addMovie(entry.movie, true);\n}\n\n// One row per movie. Empty sources produce no insertable rows.\nreturn [...movies.values()]\n  .sort((a, b) =>\n    a.key.localeCompare(b.key, 'en', { numeric: true })\n  )\n  .map(movie => ({\n    json: {\n      movie_uuid: movie.key,\n      movie_name: movie.title || movie.key,\n      runtime_minutes: movie.runtime,\n      Statut: movie.watched ? 'Vu' : 'Watchlist',\n    },\n  }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -2192
+      ],
+      "id": "68771df0-b644-5463-a7bf-d24911b65fe8",
+      "name": "Code in JavaScript16"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_FILM_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "movie_uuid",
+              "displayName": "movie_uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "movie_name",
+              "displayName": "movie_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "runtime_minutes",
+              "displayName": "runtime_minutes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -2192
+      ],
+      "id": "ea8a9969-6b84-5a7b-8970-a9cf3fbe6122",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code in JavaScript17\n// Mode: Run Once for All Items.\n//\n// Before running, update the Série Data Table:\n// Keep: series_uuid, series_name, episodes_seen_count, last_episode_title.\n// Remove: language, network, tvtime_url, last_episode_season,\n// last_episode_number, status, last_episode_seen_at, first_seen_at,\n// last_seen_at, recent_episodes_json, series_raw_json, sync_run_at.\n// Add: episodes_remaining_count (Number), Statut (String).\n// Insert row1: Map Automatically.\n//\n// episodes_seen_count includes distinct watched specials.\n// episodes_remaining_count counts remaining aired regular episodes.\n// Rewatches never increase the number of distinct episodes seen.\n\nfunction readSource(nodeName) {\n  const entries = [];\n\n  function visit(value) {\n    if (value === null || value === undefined) return;\n\n    if (typeof value === 'string') {\n      if (value.trim()) visit(JSON.parse(value));\n      return;\n    }\n\n    if (Array.isArray(value)) {\n      for (const entry of value) visit(entry);\n      return;\n    }\n\n    if (typeof value !== 'object') {\n      throw new Error(`${nodeName}: invalid JSON response.`);\n    }\n\n    if (Object.keys(value).length === 0) return;\n\n    if (value.error || Number(value.statusCode) >= 400) {\n      throw new Error(`${nodeName}: API error.`);\n    }\n\n    if (value.movie || value.show) {\n      entries.push(value);\n      return;\n    }\n\n    for (const key of ['body', 'data', 'items', 'results']) {\n      if (Object.prototype.hasOwnProperty.call(value, key)) {\n        visit(value[key]);\n        return;\n      }\n    }\n\n    throw new Error(`${nodeName}: unrecognized response format.`);\n  }\n\n  for (const item of $(nodeName).all()) {\n    visit(item.json);\n  }\n\n  return entries;\n}\n\nfunction mediaKey(media, kind) {\n  const ids = media.ids || {};\n\n  for (const provider of ['trakt', 'imdb', 'tmdb', 'tvdb', 'slug']) {\n    const value = ids[provider];\n\n    if (\n      value !== null &&\n      value !== undefined &&\n      String(value).trim()\n    ) {\n      return `${provider}:${kind}:${String(value).trim()}`;\n    }\n  }\n\n  if (ids.plex?.guid) {\n    return `plex:${kind}:${ids.plex.guid}`;\n  }\n\n  throw new Error(\n    `Missing ${kind} identifier: ${media.title || 'unknown'}.`\n  );\n}\n\nfunction nonNegativeNumber(value) {\n  if (value === null || value === undefined || value === '') {\n    return null;\n  }\n\n  const number = Number(value);\n\n  return Number.isFinite(number) && number >= 0\n    ? number\n    : null;\n}\n\nconst shows = new Map();\nconst runTime = Date.now();\n\nfunction integerOrNull(value) {\n  const number = nonNegativeNumber(value);\n\n  return number !== null && Number.isInteger(number)\n    ? number\n    : null;\n}\n\nfunction getShow(show) {\n  if (!show || typeof show !== 'object') {\n    throw new Error('Missing show in a Trakt entry.');\n  }\n\n  const key = mediaKey(show, 'show');\n  const updatedAt = Date.parse(show.updated_at) || 0;\n  const airedEpisodes = integerOrNull(show.aired_episodes);\n  const title = show.title || show.original_title || null;\n\n  if (!shows.has(key)) {\n    shows.set(key, {\n      key,\n      title,\n      updatedAt,\n      airedEpisodes,\n      seenEpisodes: new Set(),\n      seenAiredRegularEpisodes: new Set(),\n      lastEpisodeTitle: null,\n      lastWatchedAt: -Infinity,\n      hasHistory: false,\n    });\n  }\n\n  const current = shows.get(key);\n\n  if (updatedAt >= current.updatedAt) {\n    current.title = title || current.title;\n    current.airedEpisodes = airedEpisodes ?? current.airedEpisodes;\n    current.updatedAt = updatedAt;\n  } else {\n    current.title = current.title || title;\n    current.airedEpisodes = current.airedEpisodes ?? airedEpisodes;\n  }\n\n  return current;\n}\n\nfunction episodeKey(episode) {\n  const season = integerOrNull(episode.season);\n  const number = integerOrNull(episode.number);\n\n  // Season/episode coordinates are unique within one show.\n  if (season !== null && number !== null) {\n    return `season:${season}:episode:${number}`;\n  }\n\n  const ids = episode.ids || {};\n\n  for (const provider of ['trakt', 'imdb', 'tmdb', 'tvdb']) {\n    const value = ids[provider];\n\n    if (\n      value !== null &&\n      value !== undefined &&\n      String(value).trim()\n    ) {\n      return `${provider}:${String(value).trim()}`;\n    }\n  }\n\n  throw new Error('Missing identifier for a watched episode.');\n}\n\n// Include all watchlisted shows, even when none of their episodes were seen.\nfor (const entry of readSource('Trakt API - Get Stats1')) {\n  if (entry.show) {\n    getShow(entry.show);\n  }\n}\n\n// Process the complete paginated episode history.\nfor (const entry of readSource('Trakt API - Get Stats3')) {\n  if (!entry.episode || typeof entry.episode !== 'object') {\n    throw new Error('Missing episode in a Trakt history entry.');\n  }\n\n  const current = getShow(entry.show);\n  const episode = entry.episode;\n  const key = episodeKey(episode);\n\n  current.seenEpisodes.add(key);\n\n  const season = integerOrNull(episode.season);\n\n  const firstAired = Date.parse(\n    episode.first_aired ||\n    episode.effective_release_date ||\n    episode.released ||\n    ''\n  );\n\n  // Match the aired_episodes total:\n  // exclude season 0 and episodes with a known future release date.\n  if (\n    season !== null &&\n    season > 0 &&\n    (\n      !Number.isFinite(firstAired) ||\n      firstAired <= runTime\n    )\n  ) {\n    current.seenAiredRegularEpisodes.add(key);\n  }\n\n  const parsedDate = Date.parse(entry.watched_at);\n\n  const watchedAt = Number.isFinite(parsedDate)\n    ? parsedDate\n    : -Infinity;\n\n  // Keep the latest viewing event, including rewatches.\n  if (!current.hasHistory || watchedAt > current.lastWatchedAt) {\n    current.lastEpisodeTitle = episode.title || null;\n    current.lastWatchedAt = watchedAt;\n  }\n\n  current.hasHistory = true;\n}\n\nreturn [...shows.values()]\n  .sort((a, b) =>\n    a.key.localeCompare(b.key, 'en', { numeric: true })\n  )\n  .map(show => {\n    // Unknown totals stay null instead of incorrectly indicating completion.\n    const remaining = show.airedEpisodes === null\n      ? null\n      : Math.max(\n          0,\n          show.airedEpisodes - show.seenAiredRegularEpisodes.size\n        );\n\n    const viewingStatus = !show.hasHistory\n      ? 'Watchlist'\n      : remaining === 0\n        ? 'À jour'\n        : 'En cours de visionnage';\n\n    return {\n      json: {\n        series_uuid: show.key,\n        series_name: show.title || show.key,\n        episodes_seen_count: show.seenEpisodes.size,\n        last_episode_title: show.lastEpisodeTitle,\n        episodes_remaining_count: remaining,\n        Statut: viewingStatus,\n      },\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -2000
+      ],
+      "id": "a73dd52c-f924-518b-9ca3-1960c8164baa",
+      "name": "Code in JavaScript17"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_SERIE_TABLE_ID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "series_uuid",
+              "displayName": "series_uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "series_name",
+              "displayName": "series_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "episodes_seen_count",
+              "displayName": "episodes_seen_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_episode_title",
+              "displayName": "last_episode_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "episodes_remaining_count",
+              "displayName": "episodes_remaining_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -2000
+      ],
+      "id": "0310b00b-bf9a-5797-8d29-f57727549a7c",
+      "name": "Insert row1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        384,
+        -2096
+      ],
+      "id": "95241d7f-7f5f-5177-a4c5-3fe568ebdaa7",
+      "name": "Merge10"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2304,
+        -2064
+      ],
+      "id": "a0727452-7591-5b65-9230-d33062ddd0f5",
+      "name": "Loop Over Items5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2304,
+        -1760
+      ],
+      "id": "c1e7b6a4-0d17-573c-9c08-32eb7cd15553",
+      "name": "Loop Over Items6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d4a2fdee-a44e-5650-8477-900eaabdcc41",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1920,
+        -1840
+      ],
+      "id": "b85e6e75-7c7c-5ef9-a942-7bd88e18fb18",
+      "name": "If6"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1376,
+        -1888
+      ],
+      "id": "5ddd29e0-88e8-5b07-ab91-32ab6726d32f",
+      "name": "Merge9"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_SERIE_TABLE_ID",
+          "mode": "id"
+        },
+        "limit": 2
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2128,
+        -1824
+      ],
+      "id": "cc107d25-7fd3-5404-9b86-045a529790f6",
+      "name": "Get row(s)4",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_FILM_TABLE_ID",
+          "mode": "id"
+        },
+        "limit": 2
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2096,
+        -2096
+      ],
+      "id": "9542c8dd-6c86-52df-9295-694c726abdda",
+      "name": "Get row(s)5",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "490c7e19-a2fd-5078-8496-7390956061e2",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1936,
+        -2112
+      ],
+      "id": "fe3b72c1-6760-5ae1-bc47-17390ed9d5ca",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        -1888
+      ],
+      "id": "9268255a-29a8-5196-816e-626159c81764",
+      "name": "Aggregate6"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -2112
+      ],
+      "id": "476e1dc6-198b-5a02-87b7-d341c631014f",
+      "name": "Aggregate7"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_FILM_TABLE_ID",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -1744,
+        -2000
+      ],
+      "id": "5598c1e8-ca2e-5c15-b7f8-ceba4a1051ee",
+      "name": "Clear a data table"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_SERIE_TABLE_ID",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -1632,
+        -1776
+      ],
+      "id": "ebb9ec5c-ca9d-5734-80ad-f0e57b5e7afc",
+      "name": "Clear a data table1"
+    }
+  ],
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration Globale": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Restauration Tunnel1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restauration Tunnel1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Configuration Globale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trakt API - Get Stats": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trakt API - Get Stats1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript12": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript13": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge7": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Série",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Film",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Série Max",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Film Max",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Série décénie",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Film décennie",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Genre Série",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Genre Film",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Série": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Film": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge8": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trakt API - Get Stats2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript14": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Série Max": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Film Max": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Trakt API - Get Stats3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript15": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Série décénie": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Film décennie": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Genre Série": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Genre Film": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript16": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript17": {
+      "main": [
+        [
+          {
+            "node": "Insert row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "Merge10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row1": {
+      "main": [
+        [
+          {
+            "node": "Merge10",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Loop Over Items5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s)5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items6": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s)4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Merge9",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Clear a data table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge9": {
+      "main": [
+        [
+          {
+            "node": "Aggregate6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)4": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)5": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Merge9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clear a data table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate6": {
+      "main": [
+        [
+          {
+            "node": "Trakt API - Get Stats",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trakt API - Get Stats1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trakt API - Get Stats2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trakt API - Get Stats3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript16",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear a data table": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear a data table1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
